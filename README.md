@@ -12,7 +12,7 @@ The dimensions are approximately 30"x15". Depth is yet to be determined -- the l
 
 http://www.veneersupplies.com/products/Copper-Veneer-Sample-8-x-10.html
 
-The inside of the frame will have an APA102 Dotstar 144/m LED strip. 
+The inside of the frame will have an APA102 Dotstar 144/m LED strip. (~$25/free shipping on aliexpress)
 
 The inside of the infinity mirror ('back') will be made of mirrored acrylic with 25 holes for an LED strand (WS2801 Neopixel).
 
