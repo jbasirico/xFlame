@@ -22,6 +22,4 @@ The outside of the infinity mirror ('front') will be a clear acrylic panel, to w
 
 ![alt tag](https://cloud.githubusercontent.com/assets/16376428/12225606/50100cf4-b7dc-11e5-97e9-e6eb676dd659.png)
 
-The LEDs will be controlled by a Teensy 3.2 -- will need to add a voltage level booster from 3.3v up to 5v.
-
-I haven't ordered the parts yet because I need to make sure everything is right, since they all fit together and I want to minimize redos/cost.
+The LEDs are controlled by an Adafruit Pro Trinket 5v/16mhz.
