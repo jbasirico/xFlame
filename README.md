@@ -6,7 +6,7 @@ Almost ready to laser cut the materials for the next project: infinity mirror. H
 
 ![alt tag](https://cloud.githubusercontent.com/assets/16376428/12225607/50105c18-b7dc-11e5-9a48-acb9764a08dc.png)
 
-I might cover the outside of the wood with copper veneer or something that adds some modicum of protection, along with a few strategically placed ambient effect LEDs.
+I might cover the outside of the wood with copper veneer or something that adds some modicum of protection, along with a few strategically placed ambient effect LEDs. [2/23/2016 - now that I have the wood frame, it has a nice laser-burnt edge so I don't think the copper will be necessary]
 
 The dimensions are approximately 30"x15". Depth is yet to be determined -- the layers add up to 1.25"-1.5" but there will be components/wires behind the back panel. 
 
