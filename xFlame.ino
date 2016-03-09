@@ -4,14 +4,15 @@
 
 #include "FastLED.h"
 
-#define NUM_LEDS_APA102 144
+#define NUM_LEDS1_APA102 125
+#define NUM_LEDS2_APA102 116
 #define NUM_LEDS_WS2801 25
 
-#define LED1_PIN    A4
-#define CLOCK1_PIN  A5
-//#define LED2_PIN    13
-//#define CLOCK2_PIN  A2
-#define LED3_PIN    1
+#define LED1_PIN    13
+#define CLOCK1_PIN  A0
+#define LED2_PIN    9
+#define CLOCK2_PIN  11
+#define LED3_PIN    A4
 #define CLOCK3_PIN  0
 
 
@@ -19,25 +20,29 @@
 #define WS2801_COLOR_ORDER GRB
 #define CHIPSET1     APA102
 #define CHIPSET2     WS2801
-#define NUM_LEDS1    144
-#define NUM_LEDS2    25
 
 
-CRGB leds1[NUM_LEDS_APA102];
-CRGB leds2[NUM_LEDS_APA102];
+
+CRGB leds1[NUM_LEDS1_APA102];
+CRGB leds2[NUM_LEDS2_APA102];
 CRGB leds3[NUM_LEDS_WS2801];
 
-#define BRIGHTNESS  80
+#define BRIGHTNESS  150
 #define FRAMES_PER_SECOND 60
 
 bool gReverseDirection = false;
 
+CRGB color;
+float hue = 10; // for rainbow
+
 void setup() {
   delay(3000); // sanity delay
-  FastLED.addLeds<CHIPSET1, LED1_PIN, CLOCK1_PIN, APA102_COLOR_ORDER>(leds1, NUM_LEDS_APA102).setCorrection( TypicalLEDStrip );
- // FastLED.addLeds<CHIPSET1, LED2_PIN, CLOCK2_PIN, WS2801_COLOR_ORDER>(leds2, NUM_LEDS_APA102).setCorrection( TypicalLEDStrip );
+  
+  FastLED.addLeds<CHIPSET1, LED1_PIN, CLOCK1_PIN, APA102_COLOR_ORDER>(leds1, NUM_LEDS1_APA102).setCorrection( TypicalLEDStrip );
+  FastLED.addLeds<CHIPSET1, LED2_PIN, CLOCK2_PIN, APA102_COLOR_ORDER>(leds2, NUM_LEDS2_APA102).setCorrection( TypicalLEDStrip );
   FastLED.addLeds<CHIPSET2, LED3_PIN, CLOCK3_PIN, WS2801_COLOR_ORDER>(leds3, NUM_LEDS_WS2801).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness( BRIGHTNESS );
+
 }
 
 void loop()
@@ -47,9 +52,9 @@ void loop()
 
   Fire2012a(); // run simulation frame
   Fire2012b(); // run simulation frame
+  rainbow(0); // run WS2901 program
   
   FastLED.show(); // display this frame
-  FastLED.delay(1000 / FRAMES_PER_SECOND);
 }
 
 
@@ -95,15 +100,15 @@ void loop()
 void Fire2012a()
 {
 // Array of temperature readings at each simulation cell
-  static byte heat[NUM_LEDS_APA102];
+  static byte heat[NUM_LEDS1_APA102];
 
   // Step 1.  Cool down every cell a little
-    for( int i = 0; i < NUM_LEDS_APA102; i++) {
-      heat[i] = qsub8( heat[i],  random8(0, ((COOLING * 10) / NUM_LEDS_APA102) + 2));
+    for( int i = 0; i < NUM_LEDS1_APA102; i++) {
+      heat[i] = qsub8( heat[i],  random8(0, ((COOLING * 10) / NUM_LEDS1_APA102) + 2));
     }
   
     // Step 2.  Heat from each cell drifts 'up' and diffuses a little
-    for( int k= NUM_LEDS_APA102 - 1; k >= 2; k--) {
+    for( int k= NUM_LEDS1_APA102 - 1; k >= 2; k--) {
       heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2] ) / 3;
     }
     
@@ -114,11 +119,11 @@ void Fire2012a()
     }
 
     // Step 4.  Map from heat cells to LED colors
-    for( int j = 0; j < NUM_LEDS_APA102; j++) {
-      CRGB color = HeatColor( heat[j]);
+    for( int j = 0; j < NUM_LEDS1_APA102; j++) {
+       color = HeatColor( heat[j]);
       int pixelnumber;
       if( gReverseDirection ) {
-        pixelnumber = (NUM_LEDS_APA102-1) - j;
+        pixelnumber = (NUM_LEDS1_APA102-1) - j;
       } else {
         pixelnumber = j;
       }
@@ -129,11 +134,45 @@ void Fire2012a()
 void Fire2012b()
 {
 // Array of temperature readings at each simulation cell
+  static byte heat[NUM_LEDS2_APA102];
+
+  // Step 1.  Cool down every cell a little
+    for( int i = 0; i < NUM_LEDS2_APA102; i++) {
+      heat[i] = qsub8( heat[i],  random8(0, ((COOLING * 10) / NUM_LEDS2_APA102) + 2));
+    }
+  
+    // Step 2.  Heat from each cell drifts 'up' and diffuses a little
+    for( int k= NUM_LEDS2_APA102 - 1; k >= 2; k--) {
+      heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2] ) / 3;
+    }
+    
+    // Step 3.  Randomly ignite new 'sparks' of heat near the bottom
+    if( random8() < SPARKING ) {
+      int y = random8(7);
+      heat[y] = qadd8( heat[y], random8(160,255) );
+    }
+
+    // Step 4.  Map from heat cells to LED colors
+    for( int j = 0; j < NUM_LEDS1_APA102; j++) {
+       color = HeatColor( heat[j]);
+      int pixelnumber;
+      if( gReverseDirection ) {
+        pixelnumber = (NUM_LEDS2_APA102-1) - j;
+      } else {
+        pixelnumber = j;
+      }
+      leds2[pixelnumber] = color;
+    }
+}
+
+void Fire2012c()
+{
+// Array of temperature readings at each simulation cell
   static byte heat[NUM_LEDS_WS2801];
 
   // Step 1.  Cool down every cell a little
     for( int i = 0; i < NUM_LEDS_WS2801; i++) {
-      heat[i] = qsub8( heat[i],  random8(0, ((COOLING * 10) / NUM_LEDS_APA102) + 2));
+      heat[i] = qsub8( heat[i],  random8(0, ((COOLING * 10) / NUM_LEDS_WS2801) + 2));
     }
   
     // Step 2.  Heat from each cell drifts 'up' and diffuses a little
@@ -149,7 +188,7 @@ void Fire2012b()
 
     // Step 4.  Map from heat cells to LED colors
     for( int j = 0; j < NUM_LEDS_WS2801; j++) {
-      CRGB color = HeatColor( heat[j]);
+       color = HeatColor( heat[j]);
       int pixelnumber;
       if( gReverseDirection ) {
         pixelnumber = (NUM_LEDS_WS2801-1) - j;
@@ -158,4 +197,14 @@ void Fire2012b()
       }
       leds3[pixelnumber] = color;
     }
+}
+void rainbow(uint8_t wait) 
+{
+
+ for( int i = 0; i < NUM_LEDS_WS2801; i++)
+ {
+    fill_solid( &(leds3[0]), NUM_LEDS_WS2801 /*led count*/, color /*starting hue*/);
+     delay(wait); 
+ }
+   return;  
 }
